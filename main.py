@@ -14,67 +14,103 @@ st.markdown("""
 
 /* App background */
 .stApp {
-    background-color: #F2F6FC;
+    background: linear-gradient(160deg, #e0f0ff 0%, #ffffff 100%);
     font-family: 'Segoe UI', sans-serif;
 }
 
 /* Title */
 h1 {
-    color: #1F4E79;
+    color: #0B3D91;
     text-align: center;
-    font-size: 44px;
-    font-weight: 700;
+    font-size: 46px;
+    font-weight: 800;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
 }
 
 /* Description text */
 .stMarkdown p {
     font-size: 18px;
-    color: #2C3E50;
+    color: #1A1A1A;
     text-align: center;
 }
 
 /* Upload box */
 [data-testid="stFileUploader"] {
-    border: 2px dashed #1F4E79;
-    padding: 20px;
-    border-radius: 12px;
-    background-color: #FFFFFF;
+    border: 3px dashed #0B3D91;
+    padding: 25px;
+    border-radius: 15px;
+    background-color: #F0F8FF;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
 }
 
 /* Process button */
 .stButton > button {
-    background-color: #1F4E79;
-    color: white;
+    background: #0B3D91;
+    color: #FFFFFF;
     font-size: 18px;
-    border-radius: 8px;
-    padding: 10px 25px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 12px 28px;
     border: none;
-    font-weight: 600;
+    box-shadow: 1px 3px 6px rgba(0,0,0,0.2);
+    transition: 0.3s;
 }
 
 .stButton > button:hover {
-    background-color: #163A5F;
+    background: #082B66;
+    transform: translateY(-2px);
 }
 
 /* Download button */
 .stDownloadButton > button {
-    background-color: #1F4E79;
-    color: white;
+    background: #0B3D91;
+    color: #FFFFFF;
     font-size: 17px;
-    border-radius: 8px;
-    padding: 10px 20px;
+    border-radius: 10px;
+    padding: 10px 22px;
     border: none;
+    box-shadow: 1px 2px 5px rgba(0,0,0,0.2);
+    transition: 0.3s;
 }
 
 .stDownloadButton > button:hover {
-    background-color: #163A5F;
+    background: #082B66;
+    transform: translateY(-1px);
 }
 
-/* Table styling */
-[data-testid="stDataFrame"] {
-    background-color: white;
-    border-radius: 10px;
+/* Dashboard metrics */
+.stMetric > div:first-child {
+    background-color: #D9EBFF !important;
+    color: #0B3D91 !important;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    font-weight: 700;
+    box-shadow: 1px 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Top scorers table */
+.stTable {
+    background-color: #F5F9FF !important;
+    color: #0B3D91;
+    border-radius: 10px !important;
     padding: 10px;
+}
+
+/* Full data table */
+[data-testid="stDataFrame"] {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 1px 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Adjust text color in table */
+[data-testid="stDataFrame"] th, 
+[data-testid="stDataFrame"] td {
+    color: #0B3D91;
+    font-weight: 600;
 }
 
 </style>
