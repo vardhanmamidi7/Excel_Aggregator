@@ -12,14 +12,19 @@ from io import BytesIO
 st.markdown("""
 <style>
 
+/* Make header transparent so background shows correctly */
+header[data-testid="stHeader"] {
+    background-color: transparent;
+}
+
 /* App background */
 .stApp {
     background: linear-gradient(160deg, #e0f0ff 0%, #ffffff 100%);
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Title */
-h1 {
+/* Title (only main app title, not all h1 globally) */
+div.block-container h1 {
     color: #0B3D91;
     text-align: center;
     font-size: 46px;
@@ -28,8 +33,8 @@ h1 {
     margin-bottom: 10px;
 }
 
-/* Description text */
-.stMarkdown p {
+/* Description text inside main container only */
+div.block-container p {
     font-size: 18px;
     color: #1A1A1A;
     text-align: center;
@@ -40,7 +45,7 @@ h1 {
     border: 3px dashed #0B3D91;
     padding: 25px;
     border-radius: 15px;
-    background-color: #F0F8FF;
+    background-color: rgba(240, 248, 255, 0.9); /* slightly transparent */
     box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
 }
 
@@ -80,7 +85,7 @@ h1 {
 }
 
 /* Dashboard metrics */
-.stMetric > div:first-child {
+[data-testid="stMetric"] {
     background-color: #D9EBFF !important;
     color: #0B3D91 !important;
     border-radius: 12px;
@@ -106,8 +111,8 @@ h1 {
     box-shadow: 1px 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Adjust text color in table */
-[data-testid="stDataFrame"] th, 
+/* Text color in table */
+[data-testid="stDataFrame"] th,
 [data-testid="stDataFrame"] td {
     color: #0B3D91;
     font-weight: 600;
@@ -115,6 +120,7 @@ h1 {
 
 </style>
 """, unsafe_allow_html=True)
+
 # -------- End UI Styling --------
 
 
