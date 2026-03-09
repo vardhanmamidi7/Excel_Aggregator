@@ -1,193 +1,146 @@
-# 
-
-
 import streamlit as st
 import pandas as pd
 from processor import process_files
-import tempfile
 from io import BytesIO
-
 
 # -------- Clean Blue UI Styling --------
 st.markdown("""
 <style>
-/* Header transparent */
-header[data-testid="stHeader"] { background-color: transparent !important; }
-
 /* App background */
-.stApp { 
-    background: linear-gradient(160deg, #e0f0ff 0%, #ffffff 100%); 
-    font-family: 'Segoe UI', sans-serif; 
+.stApp {
+    background-color: #F2F6FC;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-/* All main titles/headers - FORCE visible */
-div.block-container h1, div.block-container h2, div.block-container h3 { 
-    color: #0B3D91 !important; 
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.4) !important;
-}
-
-/* Description */
-div.block-container p { color: #1A1A1A !important; }
-
-/* File uploader */
-[data-testid="stFileUploader"] { 
-    border: 3px dashed #0B3D91 !important; 
-    background-color: rgba(255,255,255,0.95) !important; /* White bg */
-}
-
-/* UPLOADED FILE NAMES - Key fix */
-.stFileUploaderFile, 
-[data-testid="stFileUploader"] .file-name, 
-[data-testid="stFileUploader"] span, 
-[data-testid="stFileUploader"] div[title] {
-    color: #1A1A1A !important; 
-    font-weight: 600 !important;
-    background-color: #F5F9FF !important;
-    padding: 4px 8px !important;
-    border-radius: 4px !important;
-}
-
-/* File delete buttons */
-[data-testid="stFileUploaderDeleteBtn"], [data-testid="stbaseButton-secondary"] {
-    color: #FF4444 !important;
-    background: #FFF !important;
-}
-
-/* BUTTONS - EMERALD GREEN THEME */
-.stButton > button, .stDownloadButton > button {
-    background: #10B981 !important; /* Emerald green */
-    color: #FFFFFF !important;
-    font-size: 18px;
+/* Title */
+h1 {
+    color: #1F4E79;
+    text-align: center;
+    font-size: 44px;
     font-weight: 700;
-    border-radius: 10px;
-    padding: 12px 28px;
+}
+
+/* Description text */
+.stMarkdown p {
+    font-size: 18px;
+    color: #2C3E50;
+    text-align: center;
+}
+
+/* Upload box */
+[data-testid="stFileUploader"] {
+    border: 2px dashed #1F4E79;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #FFFFFF;
+}
+
+/* Process button */
+.stButton > button {
+    background-color: #1F4E79;
+    color: white;
+    font-size: 18px;
+    border-radius: 8px;
+    padding: 10px 25px;
     border: none;
-    box-shadow: 1px 3px 6px rgba(16, 185, 129, 0.3);
-    transition: 0.3s;
+    font-weight: 600;
 }
 
-.stButton > button:hover, .stDownloadButton > button:hover {
-    background: #059669 !important; /* Darker emerald */
-    transform: translateY(-2px);
-    box-shadow: 1px 4px 8px rgba(16, 185, 129, 0.4);
+.stButton > button:hover {
+    background-color: #163A5F;
 }
 
-/* METRICS (Top 3 Scorers) */
-[data-testid="stMetric"] { 
-    background: #D9EBFF !important; 
-    border-radius: 12px; 
-    padding: 15px; 
-}
-[data-testid="stMetric"] * { 
-    color: #0B3D91 !important; 
-    font-weight: 700 !important; 
-}
-
-/* TABLES (All results, Top scorers table) */
-.element-container [data-testid="stDataFrame"],
-.stTable, [data-testid="stDataFrame"] {
-    background: #FFFFFF !important; 
-    border-radius: 12px; 
-    padding: 15px; 
-    box-shadow: 1px 2px 8px rgba(0,0,0,0.1);
+/* Download button */
+.stDownloadButton > button {
+    background-color: #1F4E79;
+    color: white;
+    font-size: 17px;
+    border-radius: 8px;
+    padding: 10px 20px;
+    border: none;
 }
 
-.element-container th, .element-container td,
-[data-testid="stDataFrame"] th, [data-testid="stDataFrame"] td,
-.stTable th, .stTable td {
-    color: #0B3D91 !important; 
-    background: #F5F9FF !important; 
-    font-weight: 600 !important;
+.stDownloadButton > button:hover {
+    background-color: #163A5F;
 }
 
-/* Safety net: ALL text in main app */
-div.block-container, div.element-container {
-    color: #1A1A1A !important;
+/* Table styling */
+[data-testid="stDataFrame"] {
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px;
 }
-div.block-container * { text-shadow: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
-
-# -------- End UI Styling --------
-
-
 st.title("Excel Score Aggregator")
+st.markdown("**Upload up to 20 Excel files containing phone and score columns.** *Phone and Score are mandatory fields.*")
 
-st.write("Upload up to 20 Excel files containing phone and score columns. Phone and Score are Mandatory Fields")
-
-# Upload files
+# File uploader
 uploaded_files = st.file_uploader(
-    "Upload Excel files",
-    type=["xlsx"],
-    accept_multiple_files=True
+    "Choose Excel files",
+    type=["xlsx", "xls"],
+    accept_multiple_files=True,
+    help="Supports .xlsx and .xls files up to 20 files"
 )
 
 if uploaded_files:
+    st.info(f"📁 Found {len(uploaded_files)} file(s)")
+    
+    if st.button("🚀 Process Files", type="primary"):
+        try:
+            # Pass uploaded_files directly to processor
+            result = process_files(uploaded_files)
 
-    if len(uploaded_files) > 20:
-        st.error("Maximum 20 files allowed")
+            st.success("✅ Processing completed!")
 
-    else:
+            # Prepare display data
+            display_df = result.copy()
+            if "name" not in display_df.columns:
+                display_df["name"] = None
+            
+            # Reorder columns
+            display_df = display_df[["phone", "name", "score"]]
+            
+            # Add ranking
+            display_df.insert(0, "rank", range(1, len(display_df) + 1))
 
-        if st.button("Process Files"):
+            # Dashboard metrics
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("📊 Total Unique Records", len(display_df))
+            with col2:
+                st.metric("🥇 Highest Score", f"{display_df['score'].max():.0f}")
+            with col3:
+                st.metric("📈 Total Score Sum", f"{display_df['score'].sum():.0f}")
 
-            file_paths = []
+            # Top scorers
+            st.subheader("🏆 Top 10 Scorers")
+            top10 = display_df.head(10)
+            st.table(top10)
 
-            # Save uploaded files temporarily
-            for file in uploaded_files:
-                temp = tempfile.NamedTemporaryFile(delete=False)
-                temp.write(file.read())
-                file_paths.append(temp.name)
+            # Full results
+            st.subheader("📋 Complete Results")
+            st.dataframe(display_df, use_container_width=True, hide_index=True)
 
-            try:
-                result = process_files(file_paths)
+            # Download Excel
+            buffer = BytesIO()
+            display_df.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
 
-                st.success("Processing completed!")
-
-                # Ensure name column exists
-                if "name" not in result.columns:
-                    result["name"] = None
-
-                # Reorder columns
-                result = result[["phone", "name", "score"]]
-
-                # Sort by score (highest first)
-                result = result.sort_values(by="score", ascending=False)
-
-                # Add ranking column
-                result.insert(0, "rank", range(1, len(result) + 1))
-
-                # Dashboard metrics
-                col1, col2 = st.columns(2)
-
-                with col1:
-                    st.metric("Total Records", len(result))
-
-                with col2:
-                    st.metric("Highest Score", result["score"].max())
-
-                # Top 3 scorers
-                st.subheader("Top 3 Scorers")
-                top3 = result.head(3)
-                st.table(top3[["rank", "name", "phone", "score"]])
-
-                # Full result table
-                st.subheader("All Results")
-                st.dataframe(result, use_container_width=True)
-
-                # Create Excel file in memory
-                buffer = BytesIO()
-                result.to_excel(buffer, index=False)
-                buffer.seek(0)
-
-                # Download button
+            col1, col2 = st.columns([3,1])
+            with col2:
                 st.download_button(
-                    label="Download Result as Excel",
+                    label="⬇️ Download Excel",
                     data=buffer,
-                    file_name="aggregated_scores.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    file_name=f"aggregated_scores_{len(display_df)}_records.xlsx",
+                    mime="application/vnd.openpyxl.xlsx"
                 )
 
-            except Exception as e:
-                st.error(str(e))
+        except ValueError as ve:
+            st.error(f"❌ {ve}")
+        except Exception as e:
+            st.error(f"💥 Unexpected error: {str(e)}")
+            st.exception(e)
+else:
+    st.info("👆 Please upload Excel files and click 'Process Files'")
