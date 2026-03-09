@@ -3,144 +3,105 @@ import pandas as pd
 from processor import process_files
 from io import BytesIO
 
-# -------- Clean Blue UI Styling --------
+# -------- SAFE CSS - Only title and buttons --------
 st.markdown("""
 <style>
-/* App background */
-.stApp {
-    background-color: #F2F6FC;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* Title */
+/* Title styling only */
 h1 {
-    color: #1F4E79;
-    text-align: center;
-    font-size: 44px;
-    font-weight: 700;
+    color: #1F4E79 !important;
+    text-align: center !important;
+    font-size: 2.5rem !important;
 }
 
-/* Description text */
-.stMarkdown p {
-    font-size: 18px;
-    color: #2C3E50;
-    text-align: center;
-}
-
-/* Upload box */
-[data-testid="stFileUploader"] {
-    border: 2px dashed #1F4E79;
-    padding: 20px;
-    border-radius: 12px;
-    background-color: #FFFFFF;
-}
-
-/* Process button */
+/* Button styling only */
 .stButton > button {
-    background-color: #1F4E79;
-    color: white;
-    font-size: 18px;
-    border-radius: 8px;
-    padding: 10px 25px;
-    border: none;
-    font-weight: 600;
+    background-color: #1F4E79 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 0.6rem 2rem !important;
+    font-weight: 600 !important;
 }
 
 .stButton > button:hover {
-    background-color: #163A5F;
+    background-color: #163A5F !important;
 }
 
 /* Download button */
 .stDownloadButton > button {
-    background-color: #1F4E79;
-    color: white;
-    font-size: 17px;
-    border-radius: 8px;
-    padding: 10px 20px;
-    border: none;
+    background-color: #1F4E79 !important;
+    color: white !important;
+    border-radius: 8px !important;
 }
 
-.stDownloadButton > button:hover {
-    background-color: #163A5F;
-}
-
-/* Table styling */
-[data-testid="stDataFrame"] {
-    background-color: white;
-    border-radius: 10px;
-    padding: 10px;
+/* Metric cards */
+[data-testid="metric-container"] {
+    background-color: white !important;
+    border-radius: 10px !important;
+    padding: 1rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("Excel Score Aggregator")
-st.markdown("**Upload up to 20 Excel files containing phone and score columns.** *Phone and Score are mandatory fields.*")
+st.title("📊 Excel Score Aggregator")
+st.markdown("*Upload up to 20 Excel files with phone and score columns*")
 
 # File uploader
 uploaded_files = st.file_uploader(
-    "Choose Excel files",
+    "Choose Excel files (.xlsx, .xls)",
     type=["xlsx", "xls"],
     accept_multiple_files=True,
-    help="Supports .xlsx and .xls files up to 20 files"
+    help="Phone and Score columns are required"
 )
 
 if uploaded_files:
-    st.info(f"📁 Found {len(uploaded_files)} file(s)")
+    st.success(f"✅ {len(uploaded_files)} file(s) selected")
     
-    if st.button("🚀 Process Files", type="primary"):
-        try:
-            # Pass uploaded_files directly to processor
-            result = process_files(uploaded_files)
+    if st.button("🚀 Process Files", use_container_width=True):
+        with st.spinner("Processing files..."):
+            try:
+                result = process_files(uploaded_files)
+                st.success(f"✅ Processed {len(result)} unique records!")
 
-            st.success("✅ Processing completed!")
+                # Prepare display
+                display_df = result.copy()
+                if "name" not in display_df.columns:
+                    display_df["name"] = "N/A"
+                
+                display_df = display_df[["phone", "name", "score"]]
+                display_df.insert(0, "rank", range(1, len(display_df) + 1))
+                display_df.columns = ["🏆 Rank", "📱 Phone", "👤 Name", "⭐ Total Score"]
 
-            # Prepare display data
-            display_df = result.copy()
-            if "name" not in display_df.columns:
-                display_df["name"] = None
-            
-            # Reorder columns
-            display_df = display_df[["phone", "name", "score"]]
-            
-            # Add ranking
-            display_df.insert(0, "rank", range(1, len(display_df) + 1))
+                # Metrics
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Total Records", len(display_df))
+                with col2:
+                    st.metric("Highest Score", f"{display_df['⭐ Total Score'].max():.0f}")
+                with col3:
+                    st.metric("Total Points", f"{display_df['⭐ Total Score'].sum():.0f}")
 
-            # Dashboard metrics
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("📊 Total Unique Records", len(display_df))
-            with col2:
-                st.metric("🥇 Highest Score", f"{display_df['score'].max():.0f}")
-            with col3:
-                st.metric("📈 Total Score Sum", f"{display_df['score'].sum():.0f}")
+                # Top results
+                st.subheader("🏅 Top Results")
+                st.table(display_df.head(10))
 
-            # Top scorers
-            st.subheader("🏆 Top 10 Scorers")
-            top10 = display_df.head(10)
-            st.table(top10)
+                # Full table
+                st.subheader("📋 All Results")
+                st.dataframe(display_df, use_container_width=True)
 
-            # Full results
-            st.subheader("📋 Complete Results")
-            st.dataframe(display_df, use_container_width=True, hide_index=True)
-
-            # Download Excel
-            buffer = BytesIO()
-            display_df.to_excel(buffer, index=False, engine='openpyxl')
-            buffer.seek(0)
-
-            col1, col2 = st.columns([3,1])
-            with col2:
+                # Download
+                buffer = BytesIO()
+                display_df.to_excel(buffer, index=False, engine='openpyxl')
+                buffer.seek(0)
+                
                 st.download_button(
-                    label="⬇️ Download Excel",
+                    label=f"⬇️ Download {len(display_df)} Records (Excel)",
                     data=buffer,
-                    file_name=f"aggregated_scores_{len(display_df)}_records.xlsx",
-                    mime="application/vnd.openpyxl.xlsx"
+                    file_name=f"scores_{len(display_df)}_records.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-        except ValueError as ve:
-            st.error(f"❌ {ve}")
-        except Exception as e:
-            st.error(f"💥 Unexpected error: {str(e)}")
-            st.exception(e)
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)}")
+                st.exception(e)
 else:
-    st.info("👆 Please upload Excel files and click 'Process Files'")
+    st.info("👆 Upload Excel files above")
