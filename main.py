@@ -11,115 +11,103 @@ from io import BytesIO
 # -------- Clean Blue UI Styling --------
 st.markdown("""
 <style>
-
-/* Make header transparent so background shows correctly */
-header[data-testid="stHeader"] {
-    background-color: transparent;
-}
+/* Header transparent */
+header[data-testid="stHeader"] { background-color: transparent !important; }
 
 /* App background */
-.stApp {
-    background: linear-gradient(160deg, #e0f0ff 0%, #ffffff 100%);
-    font-family: 'Segoe UI', sans-serif;
+.stApp { 
+    background: linear-gradient(160deg, #e0f0ff 0%, #ffffff 100%); 
+    font-family: 'Segoe UI', sans-serif; 
 }
 
-/* Title (only main app title, not all h1 globally) */
-div.block-container h1 {
-    color: #0B3D91;
-    text-align: center;
-    font-size: 46px;
-    font-weight: 800;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-    margin-bottom: 10px;
+/* All main titles/headers - FORCE visible */
+div.block-container h1, div.block-container h2, div.block-container h3 { 
+    color: #0B3D91 !important; 
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4) !important;
 }
 
-/* Description text inside main container only */
-div.block-container p {
-    font-size: 18px;
-    color: #1A1A1A;
-    text-align: center;
+/* Description */
+div.block-container p { color: #1A1A1A !important; }
+
+/* File uploader */
+[data-testid="stFileUploader"] { 
+    border: 3px dashed #0B3D91 !important; 
+    background-color: rgba(255,255,255,0.95) !important; /* White bg */
 }
 
-/* Upload box */
-[data-testid="stFileUploader"] {
-    border: 3px dashed #0B3D91;
-    padding: 25px;
-    border-radius: 15px;
-    background-color: rgba(240, 248, 255, 0.9); /* slightly transparent */
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+/* UPLOADED FILE NAMES - Key fix */
+.stFileUploaderFile, 
+[data-testid="stFileUploader"] .file-name, 
+[data-testid="stFileUploader"] span, 
+[data-testid="stFileUploader"] div[title] {
+    color: #1A1A1A !important; 
+    font-weight: 600 !important;
+    background-color: #F5F9FF !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
 }
 
-/* Process button */
-.stButton > button {
-    background: #0B3D91;
-    color: #FFFFFF;
+/* File delete buttons */
+[data-testid="stFileUploaderDeleteBtn"], [data-testid="stbaseButton-secondary"] {
+    color: #FF4444 !important;
+    background: #FFF !important;
+}
+
+/* BUTTONS - EMERALD GREEN THEME */
+.stButton > button, .stDownloadButton > button {
+    background: #10B981 !important; /* Emerald green */
+    color: #FFFFFF !important;
     font-size: 18px;
     font-weight: 700;
     border-radius: 10px;
     padding: 12px 28px;
     border: none;
-    box-shadow: 1px 3px 6px rgba(0,0,0,0.2);
+    box-shadow: 1px 3px 6px rgba(16, 185, 129, 0.3);
     transition: 0.3s;
 }
 
-.stButton > button:hover {
-    background: #082B66;
+.stButton > button:hover, .stDownloadButton > button:hover {
+    background: #059669 !important; /* Darker emerald */
     transform: translateY(-2px);
+    box-shadow: 1px 4px 8px rgba(16, 185, 129, 0.4);
 }
 
-/* Download button */
-.stDownloadButton > button {
-    background: #0B3D91;
-    color: #FFFFFF;
-    font-size: 17px;
-    border-radius: 10px;
-    padding: 10px 22px;
-    border: none;
-    box-shadow: 1px 2px 5px rgba(0,0,0,0.2);
-    transition: 0.3s;
+/* METRICS (Top 3 Scorers) */
+[data-testid="stMetric"] { 
+    background: #D9EBFF !important; 
+    border-radius: 12px; 
+    padding: 15px; 
+}
+[data-testid="stMetric"] * { 
+    color: #0B3D91 !important; 
+    font-weight: 700 !important; 
 }
 
-.stDownloadButton > button:hover {
-    background: #082B66;
-    transform: translateY(-1px);
-}
-
-/* Dashboard metrics */
-[data-testid="stMetric"] {
-    background-color: #D9EBFF !important;
-    color: #0B3D91 !important;
-    border-radius: 12px;
-    padding: 15px;
-    text-align: center;
-    font-weight: 700;
-    box-shadow: 1px 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Top scorers table */
-.stTable {
-    background-color: #F5F9FF !important;
-    color: #0B3D91;
-    border-radius: 10px !important;
-    padding: 10px;
-}
-
-/* Full data table */
-[data-testid="stDataFrame"] {
-    background-color: #FFFFFF;
-    border-radius: 12px;
-    padding: 15px;
+/* TABLES (All results, Top scorers table) */
+.element-container [data-testid="stDataFrame"],
+.stTable, [data-testid="stDataFrame"] {
+    background: #FFFFFF !important; 
+    border-radius: 12px; 
+    padding: 15px; 
     box-shadow: 1px 2px 8px rgba(0,0,0,0.1);
 }
 
-/* Text color in table */
-[data-testid="stDataFrame"] th,
-[data-testid="stDataFrame"] td {
-    color: #0B3D91;
-    font-weight: 600;
+.element-container th, .element-container td,
+[data-testid="stDataFrame"] th, [data-testid="stDataFrame"] td,
+.stTable th, .stTable td {
+    color: #0B3D91 !important; 
+    background: #F5F9FF !important; 
+    font-weight: 600 !important;
 }
 
+/* Safety net: ALL text in main app */
+div.block-container, div.element-container {
+    color: #1A1A1A !important;
+}
+div.block-container * { text-shadow: none !important; }
 </style>
 """, unsafe_allow_html=True)
+
 
 # -------- End UI Styling --------
 
